@@ -7,7 +7,6 @@
     <meta name="description" content="A simple, beautiful web app to practice the Kakeibo method, the Japanese art of mindful budgeting. Track your income, expenses, and savings goals locally and privately in your browser.">
     <meta name="keywords" content="Kakeibo, Japanese budgeting, budget app, financial planning, savings tracker, mindful spending, personal finance, kakeibo app, household ledger">
     
-    <!-- PWA Manifest & Themeing -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6d8b74">
     <link rel="apple-touch-icon" href="https://placehold.co/192x192/6d8b74/FFFFFF/png?text=家">
@@ -17,79 +16,52 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        /* Custom styles for the font and theme */
         body {
             font-family: 'Inter', 'Noto Sans JP', sans-serif;
-            background-color: #f4f1ea; /* An aged paper tone */
+            background-color: #f4f1ea;
             color: #3e3c39;
         }
-        .kakeibo-card {
-            background-color: #ffffff;
-            border: 1px solid #dcdacb;
-        }
-        .kakeibo-header {
-            font-family: 'Noto Sans JP', sans-serif;
-            color: #5a5752;
-        }
-        .btn-primary {
-            background-color: #6d8b74; /* Sage green */
-            color: #ffffff;
-            transition: background-color 0.3s ease;
-        }
-        .btn-primary:hover {
-            background-color: #5a7464;
-        }
-        .btn-delete {
-            background-color: #d57e7e; /* Soft red */
-            color: #ffffff;
-            transition: background-color 0.3s ease;
-        }
-        .btn-delete:hover {
-            background-color: #c26b6b;
-        }
-        .form-input {
-            border-color: #dcdacb;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        .form-input:focus {
-            border-color: #6d8b74;
-            box-shadow: 0 0 0 2px rgba(109, 139, 116, 0.2);
-            outline: none;
-        }
-        /* Category colors */
-        .category-needs { border-left-color: #5a7464; } /* Dark green */
-        .category-wants { border-left-color: #a3bfb0; } /* Light green */
-        .category-culture { border-left-color: #e5b299; } /* Soft orange */
-        .category-unexpected { border-left-color: #d57e7e; } /* Soft red */
-
-        /* Smooth fade-in animation */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
+        .kakeibo-card { background-color: #ffffff; border: 1px solid #dcdacb; }
+        .kakeibo-header { font-family: 'Noto Sans JP', sans-serif; color: #5a5752; }
+        .btn-primary { background-color: #6d8b74; color: #ffffff; transition: background-color 0.3s ease; }
+        .btn-primary:hover { background-color: #5a7464; }
+        .form-input { border-color: #dcdacb; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+        .form-input:focus { border-color: #6d8b74; box-shadow: 0 0 0 2px rgba(109, 139, 116, 0.2); outline: none; }
+        .category-needs { border-left-color: #5a7464; }
+        .category-wants { border-left-color: #a3bfb0; }
+        .category-culture { border-left-color: #e5b299; }
+        .category-unexpected { border-left-color: #d57e7e; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        /* Language switcher styles */
+        .lang-btn { cursor: pointer; color: #888; padding: 0 4px; }
+        .lang-btn.active { color: #6d8b74; font-weight: bold; text-decoration: underline; }
     </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-8">
-    <div class="max-w-4xl mx-auto">
-        <!-- Header -->
+    <div class="max-w-4xl mx-auto relative">
+        <!-- Language Switcher -->
+        <div id="lang-switcher" class="absolute top-2 right-2 text-sm font-medium z-10">
+            <button data-lang="en" class="lang-btn">EN</button>
+            <span class="text-gray-300">|</span>
+            <button data-lang="pt" class="lang-btn">PT</button>
+            <span class="text-gray-300">|</span>
+            <button data-lang="es" class="lang-btn">ES</button>
+        </div>
+
         <header class="text-center mb-8">
             <h1 class="text-4xl font-bold kakeibo-header">家計簿</h1>
-            <h2 class="text-2xl font-light kakeibo-header">Kakeibo</h2>
-            <p class="text-gray-500 mt-2">The Japanese art of mindful budgeting.</p>
+            <h2 class="text-2xl font-light kakeibo-header" data-key="title">Kakeibo</h2>
+            <p class="text-gray-500 mt-2" data-key="subtitle">The Japanese art of mindful budgeting.</p>
         </header>
 
         <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Column: Controls and Form -->
             <div class="lg:col-span-1 space-y-6">
-                <!-- Monthly Setup Card -->
                 <div class="kakeibo-card p-6 rounded-lg shadow-sm">
-                    <h3 class="text-lg font-medium kakeibo-header border-b pb-2 mb-4">Monthly Planning</h3>
+                    <h3 class="text-lg font-medium kakeibo-header border-b pb-2 mb-4" data-key="monthlyPlanning">Monthly Planning</h3>
                     <div class="space-y-4">
                         <div>
-                            <label for="currency" class="text-sm font-medium text-gray-600">Currency</label>
+                            <label for="currency" class="text-sm font-medium text-gray-600" data-key="currencyLabel">Currency</label>
                             <select id="currency" class="w-full mt-1 p-2 border form-input rounded-md bg-white">
                                 <option value="USD">USD - US Dollar</option>
                                 <option value="EUR">EUR - Euro</option>
@@ -99,85 +71,79 @@
                             </select>
                         </div>
                         <div>
-                            <label for="income" class="text-sm font-medium text-gray-600">Monthly Income (<span id="income-currency-symbol">$</span>)</label>
-                            <input type="number" id="income" placeholder="Ex: 3000.00" class="w-full mt-1 p-2 border form-input rounded-md">
+                            <label for="income" class="text-sm font-medium text-gray-600" data-key="incomeLabel">Monthly Income</label>
+                            <input type="number" id="income" data-placeholder-key="incomePlaceholder" class="w-full mt-1 p-2 border form-input rounded-md">
                         </div>
                         <div>
-                            <label for="savings-goal" class="text-sm font-medium text-gray-600">Savings Goal (<span id="savings-currency-symbol">$</span>)</label>
-                            <input type="number" id="savings-goal" placeholder="Ex: 500.00" class="w-full mt-1 p-2 border form-input rounded-md">
+                            <label for="savings-goal" class="text-sm font-medium text-gray-600" data-key="savingsGoalLabel">Savings Goal</label>
+                            <input type="number" id="savings-goal" data-placeholder-key="savingsGoalPlaceholder" class="w-full mt-1 p-2 border form-input rounded-md">
                         </div>
                     </div>
                 </div>
                 
-                <!-- Data Management Card -->
                 <div class="kakeibo-card p-6 rounded-lg shadow-sm">
-                    <h3 class="text-lg font-medium kakeibo-header border-b pb-2 mb-4">Data Management</h3>
+                    <h3 class="text-lg font-medium kakeibo-header border-b pb-2 mb-4" data-key="dataManagement">Data Management</h3>
                     <div class="space-y-3">
-                        <button id="export-data" class="w-full text-center py-2 px-4 rounded-md btn-primary">Export Data</button>
-                        <button id="import-data" class="w-full text-center py-2 px-4 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors">Import Data</button>
-                        <p class="text-xs text-gray-500 mt-3 text-center">
+                        <button id="export-data" class="w-full text-center py-2 px-4 rounded-md btn-primary" data-key="exportButton">Export Data</button>
+                        <button id="import-data" class="w-full text-center py-2 px-4 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors" data-key="importButton">Import Data</button>
+                        <p class="text-xs text-gray-500 mt-3 text-center" data-key="dataWarning">
                             Your data is saved locally in your browser. Remember to export your data before clearing browser history.
                         </p>
                     </div>
                 </div>
 
-                <!-- Add Transaction Card -->
                 <div class="kakeibo-card p-6 rounded-lg shadow-sm">
-                    <h3 class="text-lg font-medium kakeibo-header border-b pb-2 mb-4">Add Expense</h3>
+                    <h3 class="text-lg font-medium kakeibo-header border-b pb-2 mb-4" data-key="addExpense">Add Expense</h3>
                     <form id="transaction-form" class="space-y-4">
                         <div>
-                            <label for="description" class="text-sm font-medium text-gray-600">Description</label>
-                            <input type="text" id="description" placeholder="Ex: Groceries" required class="w-full mt-1 p-2 border form-input rounded-md">
+                            <label for="description" class="text-sm font-medium text-gray-600" data-key="descriptionLabel">Description</label>
+                            <input type="text" id="description" required data-placeholder-key="descriptionPlaceholder" class="w-full mt-1 p-2 border form-input rounded-md">
                         </div>
                         <div>
-                            <label for="amount" class="text-sm font-medium text-gray-600">Amount (<span id="amount-currency-symbol">$</span>)</label>
-                            <input type="number" id="amount" step="0.01" placeholder="Ex: 150.50" required class="w-full mt-1 p-2 border form-input rounded-md">
+                            <label for="amount" class="text-sm font-medium text-gray-600" data-key="amountLabel">Amount</label>
+                            <input type="number" id="amount" step="0.01" required data-placeholder-key="amountPlaceholder" class="w-full mt-1 p-2 border form-input rounded-md">
                         </div>
                         <div>
-                            <label for="category" class="text-sm font-medium text-gray-600">Category</label>
+                            <label for="category" class="text-sm font-medium text-gray-600" data-key="categoryLabel">Category</label>
                             <select id="category" required class="w-full mt-1 p-2 border form-input rounded-md bg-white">
-                                <option value="needs">Survival / Needs</option>
-                                <option value="wants">Optional / Wants</option>
-                                <option value="culture">Culture</option>
-                                <option value="unexpected">Extras / Unexpected</option>
+                                <option value="needs" data-key="categoryNeeds">Survival / Needs</option>
+                                <option value="wants" data-key="categoryWants">Optional / Wants</option>
+                                <option value="culture" data-key="categoryCulture">Culture</option>
+                                <option value="unexpected" data-key="categoryUnexpected">Extras / Unexpected</option>
                             </select>
                         </div>
-                        <button type="submit" class="w-full btn-primary font-medium py-2 px-4 rounded-md">Add</button>
+                        <button type="submit" class="w-full btn-primary font-medium py-2 px-4 rounded-md" data-key="addButton">Add</button>
                     </form>
                 </div>
             </div>
 
-            <!-- Right Column: Summary and Transactions -->
             <div class="lg:col-span-2 space-y-6">
-                <!-- Financial Summary Card -->
                 <div class="kakeibo-card p-6 rounded-lg shadow-sm">
-                    <h3 class="text-lg font-medium kakeibo-header border-b pb-2 mb-4">Monthly Summary</h3>
+                    <h3 class="text-lg font-medium kakeibo-header border-b pb-2 mb-4" data-key="monthlySummary">Monthly Summary</h3>
                     <div id="summary" class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
                         <div>
-                            <p class="text-sm text-gray-500">Income</p>
+                            <p class="text-sm text-gray-500" data-key="summaryIncome">Income</p>
                             <p id="summary-income" class="text-xl font-semibold text-green-700">$0.00</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Savings Goal</p>
+                            <p class="text-sm text-gray-500" data-key="summarySavingsGoal">Savings Goal</p>
                             <p id="summary-savings-goal" class="text-xl font-semibold text-blue-700">$0.00</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Total Spent</p>
+                            <p class="text-sm text-gray-500" data-key="summarySpent">Total Spent</p>
                             <p id="summary-spent" class="text-xl font-semibold text-red-600">$0.00</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">Available</p>
+                            <p class="text-sm text-gray-500" data-key="summaryAvailable">Available</p>
                             <p id="summary-available" class="text-xl font-semibold text-gray-700">$0.00</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Transaction List Card -->
                 <div class="kakeibo-card p-6 rounded-lg shadow-sm">
-                    <h3 class="text-lg font-medium kakeibo-header border-b pb-2 mb-4">Expense History</h3>
+                    <h3 class="text-lg font-medium kakeibo-header border-b pb-2 mb-4" data-key="expenseHistory">Expense History</h3>
                     <div id="transaction-list" class="space-y-3 max-h-96 overflow-y-auto pr-2">
-                        <!-- Transactions will be inserted here -->
-                        <p id="empty-state" class="text-center text-gray-500 py-4">No expenses recorded this month.</p>
+                        <p id="empty-state" class="text-center text-gray-500 py-4" data-key="emptyState">No expenses recorded this month.</p>
                     </div>
                 </div>
             </div>
@@ -187,32 +153,30 @@
             <div class="max-w-4xl mx-auto text-gray-600">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
-                        <h3 class="text-xl font-semibold kakeibo-header mb-3">What is the Kakeibo Method?</h3>
-                        <p class="text-sm mb-2">
+                        <h3 class="text-xl font-semibold kakeibo-header mb-3" data-key="footerWhatIsTitle">What is the Kakeibo Method?</h3>
+                        <p class="text-sm mb-2" data-key="footerWhatIsP1">
                             Kakeibo (家計簿), meaning "household financial ledger" in Japanese, is more than just a budgeting method—it's a philosophy for mindful spending. Created in 1904, it helps you understand your relationship with money by focusing on thoughtful tracking and reflection.
                         </p>
-                        <p class="text-sm">
-                            The core idea is to answer four key questions at the start of each month:
-                        </p>
+                        <p class="text-sm" data-key="footerWhatIsP2">The core idea is to answer four key questions at the start of each month:</p>
                         <ul class="list-disc list-inside text-sm mt-2 space-y-1">
-                            <li>How much money do you have available?</li>
-                            <li>How much would you like to save?</li>
-                            <li>How much are you spending?</li>
-                            <li>How can you improve?</li>
+                            <li data-key="footerWhatIsQ1">How much money do you have available?</li>
+                            <li data-key="footerWhatIsQ2">How much would you like to save?</li>
+                            <li data-key="footerWhatIsQ3">How much are you spending?</li>
+                            <li data-key="footerWhatIsQ4">How can you improve?</li>
                         </ul>
                     </div>
                     <div>
-                        <h3 class="text-xl font-semibold kakeibo-header mb-3">How to Use This Application</h3>
+                        <h3 class="text-xl font-semibold kakeibo-header mb-3" data-key="footerHowToTitle">How to Use This Application</h3>
                         <ol class="list-decimal list-inside text-sm space-y-2">
-                            <li><strong>Monthly Planning:</strong> At the beginning of the month, enter your total income, set a savings goal, and choose your currency.</li>
-                            <li><strong>Add Expenses:</strong> As you spend money, log each transaction with a description, amount, and one of the four Kakeibo categories.</li>
-                            <li><strong>Review Your Summary:</strong> The "Monthly Summary" card gives you a real-time overview of your finances, helping you stay on track.</li>
-                            <li><strong>Manage Your Data:</strong> Your data is saved only in your browser. Use the "Export Data" button regularly to create a backup JSON file. You can restore it anytime using "Import Data".</li>
+                            <li data-key="footerHowToS1"><strong>Monthly Planning:</strong> At the beginning of the month, enter your total income, set a savings goal, and choose your currency.</li>
+                            <li data-key="footerHowToS2"><strong>Add Expenses:</strong> As you spend money, log each transaction with a description, amount, and one of the four Kakeibo categories.</li>
+                            <li data-key="footerHowToS3"><strong>Review Your Summary:</strong> The "Monthly Summary" card gives you a real-time overview of your finances, helping you stay on track.</li>
+                            <li data-key="footerHowToS4"><strong>Manage Your Data:</strong> Your data is saved only in your browser. Use the "Export Data" button regularly to create a backup JSON file. You can restore it anytime using "Import Data".</li>
                         </ol>
                     </div>
                 </div>
                 <div class="text-center text-xs text-gray-400 mt-8 pb-4">
-                    <p>Designed with Zen principles for a calm budgeting experience.</p>
+                    <p data-key="footerCredits">Designed with Zen principles for a calm budgeting experience.</p>
                 </div>
             </div>
         </footer>
@@ -222,7 +186,161 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // I18N Translations
+            const translations = {
+                en: {
+                    title: "Kakeibo",
+                    subtitle: "The Japanese art of mindful budgeting.",
+                    monthlyPlanning: "Monthly Planning",
+                    currencyLabel: "Currency",
+                    incomeLabel: "Monthly Income",
+                    incomePlaceholder: "Ex: 3000.00",
+                    savingsGoalLabel: "Savings Goal",
+                    savingsGoalPlaceholder: "Ex: 500.00",
+                    dataManagement: "Data Management",
+                    exportButton: "Export Data",
+                    importButton: "Import Data",
+                    dataWarning: "Your data is saved locally in your browser. Remember to export your data before clearing browser history.",
+                    addExpense: "Add Expense",
+                    descriptionLabel: "Description",
+                    descriptionPlaceholder: "Ex: Groceries",
+                    amountLabel: "Amount",
+                    amountPlaceholder: "Ex: 150.50",
+                    categoryLabel: "Category",
+                    categoryNeeds: "Survival / Needs",
+                    categoryWants: "Optional / Wants",
+                    categoryCulture: "Culture",
+                    categoryUnexpected: "Extras / Unexpected",
+                    addButton: "Add",
+                    monthlySummary: "Monthly Summary",
+                    summaryIncome: "Income",
+                    summarySavingsGoal: "Savings Goal",
+                    summarySpent: "Total Spent",
+                    summaryAvailable: "Available",
+                    expenseHistory: "Expense History",
+                    emptyState: "No expenses recorded this month.",
+                    deleteButton: "Delete",
+                    importSuccess: "Data imported successfully!",
+                    importErrorFormat: "Error: Invalid file format.",
+                    importErrorParse: "Error: Could not parse the file. Please make sure it is a valid Kakeibo JSON file.",
+                    footerWhatIsTitle: "What is the Kakeibo Method?",
+                    footerWhatIsP1: "Kakeibo (家計簿), meaning \"household financial ledger\" in Japanese, is more than just a budgeting method—it's a philosophy for mindful spending. Created in 1904, it helps you understand your relationship with money by focusing on thoughtful tracking and reflection.",
+                    footerWhatIsP2: "The core idea is to answer four key questions at the start of each month:",
+                    footerWhatIsQ1: "How much money do you have available?",
+                    footerWhatIsQ2: "How much would you like to save?",
+                    footerWhatIsQ3: "How much are you spending?",
+                    footerWhatIsQ4: "How can you improve?",
+                    footerHowToTitle: "How to Use This Application",
+                    footerHowToS1: "<strong>Monthly Planning:</strong> At the beginning of the month, enter your total income, set a savings goal, and choose your currency.",
+                    footerHowToS2: "<strong>Add Expenses:</strong> As you spend money, log each transaction with a description, amount, and one of the four Kakeibo categories.",
+                    footerHowToS3: "<strong>Review Your Summary:</strong> The \"Monthly Summary\" card gives you a real-time overview of your finances, helping you stay on track.",
+                    footerHowToS4: "<strong>Manage Your Data:</strong> Your data is saved only in your browser. Use the \"Export Data\" button regularly to create a backup JSON file. You can restore it anytime using \"Import Data\".",
+                    footerCredits: "Designed with Zen principles for a calm budgeting experience."
+                },
+                pt: {
+                    title: "Kakeibo",
+                    subtitle: "A arte japonesa de um orçamento consciente.",
+                    monthlyPlanning: "Planeamento Mensal",
+                    currencyLabel: "Moeda",
+                    incomeLabel: "Rendimento Mensal",
+                    incomePlaceholder: "Ex: 3000,00",
+                    savingsGoalLabel: "Meta de Poupança",
+                    savingsGoalPlaceholder: "Ex: 500,00",
+                    dataManagement: "Gestão de Dados",
+                    exportButton: "Exportar Dados",
+                    importButton: "Importar Dados",
+                    dataWarning: "Os seus dados são guardados localmente no navegador. Lembre-se de exportar os dados antes de limpar o histórico.",
+                    addExpense: "Adicionar Despesa",
+                    descriptionLabel: "Descrição",
+                    descriptionPlaceholder: "Ex: Supermercado",
+                    amountLabel: "Valor",
+                    amountPlaceholder: "Ex: 150,50",
+                    categoryLabel: "Categoria",
+                    categoryNeeds: "Essencial / Necessidades",
+                    categoryWants: "Opcional / Desejos",
+                    categoryCulture: "Cultura",
+                    categoryUnexpected: "Extra / Inesperado",
+                    addButton: "Adicionar",
+                    monthlySummary: "Resumo Mensal",
+                    summaryIncome: "Rendimento",
+                    summarySavingsGoal: "Meta de Poupança",
+                    summarySpent: "Total Gasto",
+                    summaryAvailable: "Disponível",
+                    expenseHistory: "Histórico de Despesas",
+                    emptyState: "Nenhuma despesa registada este mês.",
+                    deleteButton: "Apagar",
+                    importSuccess: "Dados importados com sucesso!",
+                    importErrorFormat: "Erro: Formato de ficheiro inválido.",
+                    importErrorParse: "Erro: Não foi possível ler o ficheiro. Por favor, certifique-se de que é um ficheiro JSON Kakeibo válido.",
+                    footerWhatIsTitle: "O que é o Método Kakeibo?",
+                    footerWhatIsP1: "Kakeibo (家計簿), que significa \"livro de contas domésticas\" em japonês, é mais do que um método de orçamento — é uma filosofia para gastos conscientes. Criado em 1904, ajuda a entender a sua relação com o dinheiro através de um registo e reflexão cuidadosos.",
+                    footerWhatIsP2: "A ideia central é responder a quatro questões chave no início de cada mês:",
+                    footerWhatIsQ1: "Quanto dinheiro tem disponível?",
+                    footerWhatIsQ2: "Quanto gostaria de poupar?",
+                    footerWhatIsQ3: "Quanto está a gastar?",
+                    footerWhatIsQ4: "Como pode melhorar?",
+                    footerHowToTitle: "Como Usar Esta Aplicação",
+                    footerHowToS1: "<strong>Planeamento Mensal:</strong> No início do mês, insira o seu rendimento total, defina uma meta de poupança e escolha a sua moeda.",
+                    footerHowToS2: "<strong>Adicionar Despesas:</strong> Sempre que gastar dinheiro, registe cada transação com uma descrição, valor e uma das quatro categorias Kakeibo.",
+                    footerHowToS3: "<strong>Consulte o Resumo:</strong> O cartão \"Resumo Mensal\" oferece uma visão geral em tempo real das suas finanças, ajudando-o a manter-se no caminho certo.",
+                    footerHowToS4: "<strong>Faça a Gestão dos Seus Dados:</strong> Os seus dados são guardados apenas no seu navegador. Use o botão \"Exportar Dados\" regularmente para criar uma cópia de segurança. Pode restaurá-la a qualquer momento com o botão \"Importar Dados\".",
+                    footerCredits: "Desenhado com princípios Zen para uma experiência de orçamento calma."
+                },
+                es: {
+                    title: "Kakeibo",
+                    subtitle: "El arte japonés del presupuesto consciente.",
+                    monthlyPlanning: "Planificación Mensual",
+                    currencyLabel: "Moneda",
+                    incomeLabel: "Ingresos Mensuales",
+                    incomePlaceholder: "Ej: 3000.00",
+                    savingsGoalLabel: "Meta de Ahorro",
+                    savingsGoalPlaceholder: "Ej: 500.00",
+                    dataManagement: "Gestión de Datos",
+                    exportButton: "Exportar Datos",
+                    importButton: "Importar Datos",
+                    dataWarning: "Tus datos se guardan localmente en el navegador. Recuerda exportar tus datos antes de limpiar el historial del navegador.",
+                    addExpense: "Añadir Gasto",
+                    descriptionLabel: "Descripción",
+                    descriptionPlaceholder: "Ej: Supermercado",
+                    amountLabel: "Cantidad",
+                    amountPlaceholder: "Ej: 150.50",
+                    categoryLabel: "Categoría",
+                    categoryNeeds: "Supervivencia / Necesidades",
+                    categoryWants: "Opcional / Deseos",
+                    categoryCulture: "Cultura",
+                    categoryUnexpected: "Extras / Inesperado",
+                    addButton: "Añadir",
+                    monthlySummary: "Resumen Mensual",
+                    summaryIncome: "Ingresos",
+                    summarySavingsGoal: "Meta de Ahorro",
+                    summarySpent: "Total Gastado",
+                    summaryAvailable: "Disponible",
+                    expenseHistory: "Historial de Gastos",
+                    emptyState: "No hay gastos registrados este mes.",
+                    deleteButton: "Eliminar",
+                    importSuccess: "¡Datos importados con éxito!",
+                    importErrorFormat: "Error: Formato de archivo no válido.",
+                    importErrorParse: "Error: No se pudo leer el archivo. Por favor, asegúrate de que es un archivo JSON Kakeibo válido.",
+                    footerWhatIsTitle: "¿Qué es el Método Kakeibo?",
+                    footerWhatIsP1: "Kakeibo (家計簿), que significa \"libro de cuentas del hogar\" en japonés, es más que un método de presupuesto: es una filosofía para un gasto consciente. Creado en 1904, te ayuda a comprender tu relación con el dinero centrándose en un seguimiento y una reflexión cuidadosos.",
+                    footerWhatIsP2: "La idea central es responder a cuatro preguntas clave al principio de cada mes:",
+                    footerWhatIsQ1: "¿Cuánto dinero tienes disponible?",
+                    footerWhatIsQ2: "¿Cuánto te gustaría ahorrar?",
+                    footerWhatIsQ3: "¿Cuánto estás gastando?",
+                    footerWhatIsQ4: "¿Cómo puedes mejorar?",
+                    footerHowToTitle: "Cómo Usar Esta Aplicación",
+                    footerHowToS1: "<strong>Planificación Mensual:</strong> Al principio del mes, introduce tus ingresos totales, establece una meta de ahorro y elige tu moneda.",
+                    footerHowToS2: "<strong>Añadir Gastos:</strong> A medida que gastes dinero, registra cada transacción con una descripción, cantidad y una de las cuatro categorías Kakeibo.",
+                    footerHowToS3: "<strong>Revisa tu Resumen:</strong> La tarjeta \"Resumen Mensual\" te da una visión general en tiempo real de tus finanzas, ayudándote a mantener el rumbo.",
+                    footerHowToS4: "<strong>Gestiona tus Datos:</strong> Tus datos se guardan solo en tu navegador. Usa el botón \"Exportar Datos\" regularmente para crear una copia de seguridad. Puedes restaurarla en cualquier momento con \"Importar Datos\".",
+                    footerCredits: "Diseñado con principios Zen para una experiencia de presupuesto tranquila."
+                }
+            };
+            
             // DOM Elements
+            const langSwitcher = document.getElementById('lang-switcher');
+
+            // ... (o resto dos elementos DOM permanece igual)
             const currencySelector = document.getElementById('currency');
             const incomeInput = document.getElementById('income');
             const savingsGoalInput = document.getElementById('savings-goal');
@@ -235,29 +353,68 @@
             const exportDataBtn = document.getElementById('export-data');
             const importDataBtn = document.getElementById('import-data');
             const importFileInput = document.getElementById('import-file-input');
-            
-            const incomeCurrencySymbol = document.getElementById('income-currency-symbol');
-            const savingsCurrencySymbol = document.getElementById('savings-currency-symbol');
-            const amountCurrencySymbol = document.getElementById('amount-currency-symbol');
-
             const summaryIncomeEl = document.getElementById('summary-income');
             const summarySavingsGoalEl = document.getElementById('summary-savings-goal');
             const summarySpentEl = document.getElementById('summary-spent');
             const summaryAvailableEl = document.getElementById('summary-available');
 
-            // localStorage key based on the current year and month
             const currentMonthKey = `kakeibo-${new Date().getFullYear()}-${new Date().getMonth()}`;
             
-            // Application state
             let state = {
                 income: 0,
                 savingsGoal: 0,
                 transactions: [],
                 currency: 'USD'
             };
+            let currentLanguage = 'en'; // Default language
 
-            // Utility Functions
+            // --- I18n Functions ---
+            const applyTranslations = () => {
+                const lang = translations[currentLanguage];
+                document.querySelectorAll('[data-key]').forEach(el => {
+                    const key = el.getAttribute('data-key');
+                    if (lang[key]) {
+                        el.innerHTML = lang[key]; // Use innerHTML to support <strong> tags
+                    }
+                });
+                document.querySelectorAll('[data-placeholder-key]').forEach(el => {
+                    const key = el.getAttribute('data-placeholder-key');
+                    if (lang[key]) {
+                        el.placeholder = lang[key];
+                    }
+                });
+                // Update active button style
+                langSwitcher.querySelectorAll('.lang-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.lang === currentLanguage);
+                });
+                // Update lang attribute of the page
+                document.documentElement.lang = currentLanguage;
+                // Re-render transactions to update dates and delete button text
+                renderTransactions(); 
+            };
+            
+            const setLanguage = (lang) => {
+                currentLanguage = lang;
+                localStorage.setItem('kakeibo-lang', lang);
+                applyTranslations();
+            };
+            
+            const getInitialLanguage = () => {
+                const savedLang = localStorage.getItem('kakeibo-lang');
+                if (savedLang && translations[savedLang]) {
+                    return savedLang;
+                }
+                const browserLang = navigator.language.split('-')[0];
+                if (translations[browserLang]) {
+                    return browserLang;
+                }
+                return 'en'; // Default
+            };
+
+            // --- End I18n Functions ---
+
             const formatCurrency = (value) => {
+                // ... (função sem alterações)
                 const options = { style: 'currency', currency: state.currency };
                 let locale = 'en-US';
                 switch (state.currency) {
@@ -269,12 +426,10 @@
                 return new Intl.NumberFormat(locale, options).format(value);
             };
 
-            // Data Functions
             const loadState = () => {
                 const data = localStorage.getItem(currentMonthKey);
                 if (data) {
                     const savedState = JSON.parse(data);
-                    // Ensure currency exists in saved state, otherwise default
                     state = { ...state, ...savedState };
                     state.currency = savedState.currency || 'USD';
                 }
@@ -284,11 +439,10 @@
                 localStorage.setItem(currentMonthKey, JSON.stringify(state));
             };
             
-            // Render Functions
             const renderSummary = () => {
+                // ... (função sem alterações)
                 const totalSpent = state.transactions.reduce((acc, t) => acc + t.amount, 0);
                 const available = state.income - totalSpent;
-
                 summaryIncomeEl.textContent = formatCurrency(state.income);
                 summarySavingsGoalEl.textContent = formatCurrency(state.savingsGoal);
                 summarySpentEl.textContent = formatCurrency(totalSpent);
@@ -296,14 +450,14 @@
             };
 
             const renderTransactions = () => {
-                transactionList.innerHTML = ''; // Clear the list
+                transactionList.innerHTML = '';
                 if (state.transactions.length === 0) {
                     transactionList.appendChild(emptyState);
                     emptyState.style.display = 'block';
                 } else {
                     emptyState.style.display = 'none';
-                    // Sort transactions from newest to oldest
                     const sortedTransactions = [...state.transactions].sort((a, b) => b.id - a.id);
+                    const localeMap = { en: 'en-US', pt: 'pt-PT', es: 'es-ES' };
                     sortedTransactions.forEach(t => {
                         const transactionEl = document.createElement('div');
                         transactionEl.className = `fade-in flex justify-between items-center p-3 kakeibo-card rounded-md border-l-4 category-${t.category}`;
@@ -311,170 +465,87 @@
                         transactionEl.innerHTML = `
                             <div>
                                 <p class="font-medium">${t.description}</p>
-                                <p class="text-sm text-gray-500">${new Date(t.id).toLocaleDateString('en-US')}</p>
+                                <p class="text-sm text-gray-500">${new Date(t.id).toLocaleDateString(localeMap[currentLanguage])}</p>
                             </div>
                             <div class="text-right">
                                 <p class="font-semibold">${formatCurrency(t.amount)}</p>
-                                <button data-id="${t.id}" class="delete-btn text-xs text-red-500 hover:text-red-700">Delete</button>
+                                <button data-id="${t.id}" class="delete-btn text-xs text-red-500 hover:text-red-700">${translations[currentLanguage].deleteButton}</button>
                             </div>
                         `;
                         transactionList.appendChild(transactionEl);
                     });
                 }
             };
-
-            const updateCurrencyUI = () => {
-                const symbol = new Intl.NumberFormat('en-US', { style: 'currency', currency: state.currency, currencyDisplay: 'narrowSymbol' })
-                    .formatToParts(1).find(part => part.type === 'currency').value;
-                
-                incomeCurrencySymbol.textContent = symbol;
-                savingsCurrencySymbol.textContent = symbol;
-                amountCurrencySymbol.textContent = symbol;
-                currencySelector.value = state.currency;
-            };
-
+            
             const renderAll = () => {
                 incomeInput.value = state.income > 0 ? state.income : '';
                 savingsGoalInput.value = state.savingsGoal > 0 ? state.savingsGoal : '';
-                updateCurrencyUI();
+                currencySelector.value = state.currency;
                 renderSummary();
                 renderTransactions();
-            };
-
-            // Event Handlers
-            const handleCurrencyChange = (e) => {
-                state.currency = e.target.value;
-                saveState();
-                renderAll();
-            };
-
-            const handleIncomeChange = (e) => {
-                state.income = parseFloat(e.target.value) || 0;
-                saveState();
-                renderSummary();
-            };
-
-            const handleSavingsGoalChange = (e) => {
-                state.savingsGoal = parseFloat(e.target.value) || 0;
-                saveState();
-                renderSummary();
-            };
-
-            const handleAddTransaction = (e) => {
-                e.preventDefault();
-                const description = descriptionInput.value;
-                const amount = parseFloat(amountInput.value);
-                const category = categoryInput.value;
-
-                if (!description || !amount || amount <= 0) {
-                    console.error("Description and amount are required.");
-                    return;
-                }
-
-                const newTransaction = {
-                    id: Date.now(), // Using timestamp as a unique ID
-                    description,
-                    amount,
-                    category
-                };
-
-                state.transactions.push(newTransaction);
-                saveState();
-                renderAll();
-                
-                // Reset the form
-                transactionForm.reset();
-            };
-            
-            const handleDeleteTransaction = (e) => {
-                if (e.target.classList.contains('delete-btn')) {
-                    const id = parseInt(e.target.dataset.id);
-                    state.transactions = state.transactions.filter(t => t.id !== id);
-                    saveState();
-                    renderAll();
-                }
-            };
-
-            const handleExportData = () => {
-                const dataStr = JSON.stringify(state, null, 2);
-                const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                const url = URL.createObjectURL(dataBlob);
-                const link = document.createElement('a');
-                const date = new Date();
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                link.download = `kakeibo-data-${year}-${month}.json`;
-                link.href = url;
-                link.click();
-                URL.revokeObjectURL(url);
-            };
-
-            const handleImportClick = () => {
-                importFileInput.click();
+                // Apply translations on initial render as well
+                applyTranslations();
             };
 
             const handleImportFile = (e) => {
+                // ... (função com alertas traduzidos)
                 const file = e.target.files[0];
                 if (!file) return;
-
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     try {
                         const importedData = JSON.parse(event.target.result);
-                        // Basic validation to ensure the data is in the correct format
-                        if (
-                            typeof importedData.income !== 'undefined' &&
-                            typeof importedData.savingsGoal !== 'undefined' &&
-                            Array.isArray(importedData.transactions) &&
-                            typeof importedData.currency !== 'undefined'
-                        ) {
+                        if (typeof importedData.income !== 'undefined' && Array.isArray(importedData.transactions)) {
                             state = importedData;
                             saveState();
                             renderAll();
-                            alert('Data imported successfully!');
+                            alert(translations[currentLanguage].importSuccess);
                         } else {
-                            alert('Error: Invalid file format.');
+                            alert(translations[currentLanguage].importErrorFormat);
                         }
                     } catch (error) {
-                        alert('Error: Could not parse the file. Please make sure it is a valid Kakeibo JSON file.');
-                        console.error("Import error:", error);
+                        alert(translations[currentLanguage].importErrorParse);
                     }
                 };
                 reader.readAsText(file);
-                // Reset the input value to allow importing the same file again
                 importFileInput.value = '';
             };
 
-            // PWA Service Worker Registration
             const registerServiceWorker = () => {
                 if ('serviceWorker' in navigator) {
                     window.addEventListener('load', () => {
                         navigator.serviceWorker.register('sw.js')
-                            .then(registration => {
-                                console.log('PWA Service Worker registered with scope:', registration.scope);
-                            })
-                            .catch(err => {
-                                console.error('PWA Service Worker registration failed:', err);
-                            });
+                            .then(reg => console.log('Service Worker registered.', reg))
+                            .catch(err => console.error('Service Worker registration failed:', err));
                     });
                 }
             };
 
-            // Initialization
             const init = () => {
+                // Set language first
+                setLanguage(getInitialLanguage());
+                
                 loadState();
                 renderAll();
-
-                currencySelector.addEventListener('change', handleCurrencyChange);
-                incomeInput.addEventListener('input', handleIncomeChange);
-                savingsGoalInput.addEventListener('input', handleSavingsGoalChange);
-                transactionForm.addEventListener('submit', handleAddTransaction);
-                transactionList.addEventListener('click', handleDeleteTransaction);
-                exportDataBtn.addEventListener('click', handleExportData);
-                importDataBtn.addEventListener('click', handleImportClick);
+                
+                // Add event listeners
+                langSwitcher.addEventListener('click', (e) => {
+                    if (e.target.matches('.lang-btn')) {
+                        setLanguage(e.target.dataset.lang);
+                    }
+                });
+                
+                // Keep other listeners
+                currencySelector.addEventListener('change', (e) => { state.currency = e.target.value; saveState(); renderAll(); });
+                incomeInput.addEventListener('input', (e) => { state.income = parseFloat(e.target.value) || 0; saveState(); renderSummary(); });
+                savingsGoalInput.addEventListener('input', (e) => { state.savingsGoal = parseFloat(e.target.value) || 0; saveState(); renderSummary(); });
+                transactionForm.addEventListener('submit', (e) => { e.preventDefault(); const newTx = { id: Date.now(), description: descriptionInput.value, amount: parseFloat(amountInput.value), category: categoryInput.value }; state.transactions.push(newTx); saveState(); renderAll(); transactionForm.reset(); });
+                transactionList.addEventListener('click', (e) => { if (e.target.classList.contains('delete-btn')) { const id = parseInt(e.target.dataset.id); state.transactions = state.transactions.filter(t => t.id !== id); saveState(); renderAll(); }});
+                exportDataBtn.addEventListener('click', () => { const dataStr = JSON.stringify(state, null, 2); const dataBlob = new Blob([dataStr], { type: 'application/json' }); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.download = `kakeibo-data-${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}.json`; link.href = url; link.click(); URL.revokeObjectURL(url); });
+                importDataBtn.addEventListener('click', () => importFileInput.click());
                 importFileInput.addEventListener('change', handleImportFile);
 
-                registerServiceWorker(); // Register the PWA service worker
+                registerServiceWorker();
             };
 
             init();
