@@ -35,6 +35,8 @@
         .kakeibo-header { font-family: 'Noto Sans JP', sans-serif; color: #5a5752; }
         .btn-primary { background-color: #6d8b74; color: #ffffff; transition: background-color 0.3s ease; }
         .btn-primary:hover { background-color: #5a7464; }
+        .btn-secondary { background-color: #a3bfb0; color: #ffffff; transition: background-color 0.3s ease; }
+        .btn-secondary:hover { background-color: #8fa89b; }
         .form-input { border-color: #dcdacb; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
         .form-input:focus { border-color: #6d8b74; box-shadow: 0 0 0 2px rgba(109, 139, 116, 0.2); outline: none; }
         .category-needs { border-left-color: #5a7464; }
@@ -43,7 +45,6 @@
         .category-unexpected { border-left-color: #d57e7e; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        /* Language switcher styles */
         .lang-btn { cursor: pointer; color: #888; padding: 0 4px; }
         .lang-btn.active { color: #6d8b74; font-weight: bold; text-decoration: underline; }
     </style>
@@ -230,6 +231,9 @@
                     expenseHistory: "Expense History",
                     emptyState: "No expenses recorded this month.",
                     deleteButton: "Delete",
+                    editButton: "Edit",
+                    saveButton: "Save",
+                    cancelButton: "Cancel",
                     importSuccess: "Data imported successfully!",
                     importErrorFormat: "Error: Invalid file format.",
                     importErrorParse: "Error: Could not parse the file. Please make sure it is a valid Kakeibo JSON file.",
@@ -279,6 +283,9 @@
                     expenseHistory: "Histórico de Despesas",
                     emptyState: "Nenhuma despesa registada este mês.",
                     deleteButton: "Apagar",
+                    editButton: "Editar",
+                    saveButton: "Guardar",
+                    cancelButton: "Cancelar",
                     importSuccess: "Dados importados com sucesso!",
                     importErrorFormat: "Erro: Formato de ficheiro inválido.",
                     importErrorParse: "Erro: Não foi possível ler o ficheiro. Por favor, certifique-se de que é um ficheiro JSON Kakeibo válido.",
@@ -328,6 +335,9 @@
                     expenseHistory: "Historial de Gastos",
                     emptyState: "No hay gastos registrados este mes.",
                     deleteButton: "Eliminar",
+                    editButton: "Editar",
+                    saveButton: "Guardar",
+                    cancelButton: "Cancelar",
                     importSuccess: "¡Datos importados con éxito!",
                     importErrorFormat: "Error: Formato de archivo no válido.",
                     importErrorParse: "Error: No se pudo leer el archivo. Por favor, asegúrate de que es un archivo JSON Kakeibo válido.",
@@ -347,10 +357,7 @@
                 }
             };
             
-            // DOM Elements
             const langSwitcher = document.getElementById('lang-switcher');
-
-            // ... (o resto dos elementos DOM permanece igual)
             const currencySelector = document.getElementById('currency');
             const incomeInput = document.getElementById('income');
             const savingsGoalInput = document.getElementById('savings-goal');
@@ -376,15 +383,14 @@
                 transactions: [],
                 currency: 'USD'
             };
-            let currentLanguage = 'en'; // Default language
+            let currentLanguage = 'en';
 
-            // --- I18n Functions ---
             const applyTranslations = () => {
                 const lang = translations[currentLanguage];
                 document.querySelectorAll('[data-key]').forEach(el => {
                     const key = el.getAttribute('data-key');
                     if (lang[key]) {
-                        el.innerHTML = lang[key]; // Use innerHTML to support <strong> tags
+                        el.innerHTML = lang[key];
                     }
                 });
                 document.querySelectorAll('[data-placeholder-key]').forEach(el => {
@@ -393,13 +399,10 @@
                         el.placeholder = lang[key];
                     }
                 });
-                // Update active button style
                 langSwitcher.querySelectorAll('.lang-btn').forEach(btn => {
                     btn.classList.toggle('active', btn.dataset.lang === currentLanguage);
                 });
-                // Update lang attribute of the page
                 document.documentElement.lang = currentLanguage;
-                // Re-render transactions to update dates and delete button text
                 renderTransactions(); 
             };
             
@@ -418,13 +421,10 @@
                 if (translations[browserLang]) {
                     return browserLang;
                 }
-                return 'en'; // Default
+                return 'en';
             };
 
-            // --- End I18n Functions ---
-
             const formatCurrency = (value) => {
-                // ... (função sem alterações)
                 const options = { style: 'currency', currency: state.currency };
                 let locale = 'en-US';
                 switch (state.currency) {
@@ -450,7 +450,6 @@
             };
             
             const renderSummary = () => {
-                // ... (função sem alterações)
                 const totalSpent = state.transactions.reduce((acc, t) => acc + t.amount, 0);
                 const available = state.income - totalSpent;
                 summaryIncomeEl.textContent = formatCurrency(state.income);
@@ -459,46 +458,112 @@
                 summaryAvailableEl.textContent = formatCurrency(available);
             };
 
-            const renderTransactions = () => {
+            const renderTransactions = (editingId = null) => {
                 transactionList.innerHTML = '';
                 if (state.transactions.length === 0) {
                     transactionList.appendChild(emptyState);
                     emptyState.style.display = 'block';
                 } else {
                     emptyState.style.display = 'none';
-                    const sortedTransactions = [...state.transactions].sort((a, b) => b.id - a.id);
+                    const sortedTransactions = [...state.transactions].sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
                     const localeMap = { en: 'en-US', pt: 'pt-PT', es: 'es-ES' };
+                    
                     sortedTransactions.forEach(t => {
                         const transactionEl = document.createElement('div');
-                        transactionEl.className = `fade-in flex justify-between items-center p-3 kakeibo-card rounded-md border-l-4 category-${t.category}`;
-                        
-                        transactionEl.innerHTML = `
-                            <div>
-                                <p class="font-medium">${t.description}</p>
-                                <p class="text-sm text-gray-500">${new Date(t.id).toLocaleDateString(localeMap[currentLanguage])}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="font-semibold">${formatCurrency(t.amount)}</p>
-                                <button data-id="${t.id}" class="delete-btn text-xs text-red-500 hover:text-red-700">${translations[currentLanguage].deleteButton}</button>
-                            </div>
-                        `;
+                        transactionEl.className = `transaction-item fade-in flex justify-between items-center p-3 kakeibo-card rounded-md border-l-4 category-${t.category}`;
+                        transactionEl.dataset.transactionId = t.id;
+
+                        if (t.id === editingId) {
+                            transactionEl.innerHTML = `
+                                <div class="flex-grow space-y-2">
+                                    <input type="date" value="${t.date}" class="edit-date-input w-full p-1 border form-input rounded-md">
+                                    <input type="text" value="${t.description}" class="edit-description-input w-full p-1 border form-input rounded-md">
+                                    <input type="number" step="0.01" value="${t.amount}" class="edit-amount-input w-full p-1 border form-input rounded-md">
+                                </div>
+                                <div class="flex flex-col items-end pl-4 space-y-1">
+                                    <button data-id="${t.id}" class="save-btn text-xs btn-primary px-2 py-1 rounded">${translations[currentLanguage].saveButton}</button>
+                                    <button class="cancel-btn text-xs border border-gray-300 px-2 py-1 rounded hover:bg-gray-100">${translations[currentLanguage].cancelButton}</button>
+                                </div>
+                            `;
+                        } else {
+                            transactionEl.innerHTML = `
+                                <div class="flex-grow">
+                                    <p class="font-medium">${t.description}</p>
+                                    <p class="text-sm text-gray-500">${new Date(t.date + 'T00:00:00').toLocaleDateString(localeMap[currentLanguage])}</p>
+                                </div>
+                                <div class="text-right pr-4">
+                                    <p class="font-semibold">${formatCurrency(t.amount)}</p>
+                                </div>
+                                <div class="flex flex-col items-end space-y-1">
+                                    <button data-id="${t.id}" class="edit-btn text-xs text-blue-600 hover:text-blue-800">${translations[currentLanguage].editButton}</button>
+                                    <button data-id="${t.id}" class="delete-btn text-xs text-red-500 hover:text-red-700">${translations[currentLanguage].deleteButton}</button>
+                                </div>
+                            `;
+                        }
                         transactionList.appendChild(transactionEl);
                     });
                 }
             };
             
-            const renderAll = () => {
+            const renderAll = (editingId = null) => {
                 incomeInput.value = state.income > 0 ? state.income : '';
                 savingsGoalInput.value = state.savingsGoal > 0 ? state.savingsGoal : '';
                 currencySelector.value = state.currency;
                 renderSummary();
-                renderTransactions();
-                // Apply translations on initial render as well
+                renderTransactions(editingId);
                 applyTranslations();
             };
 
+            const handleAddTransaction = (e) => {
+                e.preventDefault();
+                const newTransaction = {
+                    id: Date.now(),
+                    date: new Date().toISOString().split('T')[0],
+                    description: descriptionInput.value,
+                    amount: parseFloat(amountInput.value),
+                    category: categoryInput.value
+                };
+                state.transactions.push(newTransaction);
+                saveState();
+                renderAll();
+                transactionForm.reset();
+            };
+
+            const handleTransactionListClick = (e) => {
+                const target = e.target;
+                const transactionId = parseInt(target.closest('.transaction-item')?.dataset.transactionId);
+
+                if (target.classList.contains('delete-btn')) {
+                    state.transactions = state.transactions.filter(t => t.id !== transactionId);
+                    saveState();
+                    renderAll();
+                } else if (target.classList.contains('edit-btn')) {
+                    renderTransactions(transactionId);
+                } else if (target.classList.contains('cancel-btn')) {
+                    renderTransactions();
+                } else if (target.classList.contains('save-btn')) {
+                    const transactionEl = target.closest('.transaction-item');
+                    const newDate = transactionEl.querySelector('.edit-date-input').value;
+                    const newDescription = transactionEl.querySelector('.edit-description-input').value;
+                    const newAmount = parseFloat(transactionEl.querySelector('.edit-amount-input').value);
+
+                    if (!newDescription || !newAmount || newAmount <= 0 || !newDate) return;
+
+                    const transactionIndex = state.transactions.findIndex(t => t.id === transactionId);
+                    if (transactionIndex > -1) {
+                        state.transactions[transactionIndex] = {
+                            ...state.transactions[transactionIndex],
+                            date: newDate,
+                            description: newDescription,
+                            amount: newAmount
+                        };
+                    }
+                    saveState();
+                    renderAll();
+                }
+            };
+            
             const handleImportFile = (e) => {
-                // ... (função com alertas traduzidos)
                 const file = e.target.files[0];
                 if (!file) return;
                 const reader = new FileReader();
@@ -532,25 +597,21 @@
             };
 
             const init = () => {
-                // Set language first
                 setLanguage(getInitialLanguage());
-                
                 loadState();
                 renderAll();
                 
-                // Add event listeners
                 langSwitcher.addEventListener('click', (e) => {
                     if (e.target.matches('.lang-btn')) {
                         setLanguage(e.target.dataset.lang);
                     }
                 });
                 
-                // Keep other listeners
                 currencySelector.addEventListener('change', (e) => { state.currency = e.target.value; saveState(); renderAll(); });
                 incomeInput.addEventListener('input', (e) => { state.income = parseFloat(e.target.value) || 0; saveState(); renderSummary(); });
                 savingsGoalInput.addEventListener('input', (e) => { state.savingsGoal = parseFloat(e.target.value) || 0; saveState(); renderSummary(); });
-                transactionForm.addEventListener('submit', (e) => { e.preventDefault(); const newTx = { id: Date.now(), description: descriptionInput.value, amount: parseFloat(amountInput.value), category: categoryInput.value }; state.transactions.push(newTx); saveState(); renderAll(); transactionForm.reset(); });
-                transactionList.addEventListener('click', (e) => { if (e.target.classList.contains('delete-btn')) { const id = parseInt(e.target.dataset.id); state.transactions = state.transactions.filter(t => t.id !== id); saveState(); renderAll(); }});
+                transactionForm.addEventListener('submit', handleAddTransaction);
+                transactionList.addEventListener('click', handleTransactionListClick);
                 exportDataBtn.addEventListener('click', () => { const dataStr = JSON.stringify(state, null, 2); const dataBlob = new Blob([dataStr], { type: 'application/json' }); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.download = `kakeibo-data-${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}.json`; link.href = url; link.click(); URL.revokeObjectURL(url); });
                 importDataBtn.addEventListener('click', () => importFileInput.click());
                 importFileInput.addEventListener('change', handleImportFile);
@@ -563,3 +624,4 @@
     </script>
 </body>
 </html>
+
